@@ -1,0 +1,360 @@
+// ============================================================================
+// BEGINNER-FRIENDLY JENKINS PIPELINE
+// Task Manager API - CI/CD Pipeline for Learning
+// ============================================================================
+//
+// This is a simplified Jenkins pipeline designed for students learning CI/CD.
+// It contains only the essential stages without complex features like:
+// - Docker builds
+// - SonarQube code analysis
+// - Security scans
+// - Multiple environments (dev/staging/production)
+//
+// PIPELINE STAGES:
+// 1. Checkout  → Get the code from Git
+// 2. Build     → Compile the Java code
+// 3. Test      → Run unit tests
+// 4. Package   → Create JAR file
+// 5. Deploy    → Deploy to local machine
+// ============================================================================
+
+pipeline {
+    agent any
+
+    // ========================================================================
+    // TOOLS CONFIGURATION
+    // These must be configured in Jenkins Global Tool Configuration
+    // ========================================================================
+    tools {
+        maven 'Maven 3.9.0'  // Name must match Jenkins configuration
+        jdk 'JDK 17'         // Name must match Jenkins configuration
+    }
+
+    // ========================================================================
+    // ENVIRONMENT VARIABLES
+    // These variables are used throughout the pipeline
+    // ========================================================================
+    environment {
+        // Application name
+        APP_NAME = 'task-manager-api'
+        
+        // JAR file location after build
+        JAR_FILE = "target/${APP_NAME}-*.jar"
+        
+        // Local deployment directory (where JAR will be copied)
+        // For Mac/Linux: /tmp/task-manager
+        // For Windows: C:\task-manager
+        DEPLOY_DIR_UNIX = '/tmp/task-manager'
+        DEPLOY_DIR_WINDOWS = 'C:\\task-manager'
+    }
+
+    // ========================================================================
+    // PIPELINE STAGES
+    // ========================================================================
+    stages {
+        
+        // ====================================================================
+        // STAGE 1: CHECKOUT
+        // Purpose: Get the latest code from Git repository
+        // What happens: Jenkins downloads your code from GitHub/GitLab
+        // ====================================================================
+        stage('1. Checkout Source Code') {
+            steps {
+                echo '=========================================='
+                echo 'STAGE 1: Checking out source code from Git'
+                echo '=========================================='
+                
+                // SCM = Source Code Management (Git in this case)
+                checkout scm
+                
+                echo '✓ Source code checked out successfully!'
+                echo '✓ You can view the code in Jenkins workspace'
+            }
+        }
+
+        // ====================================================================
+        // STAGE 2: BUILD
+        // Purpose: Compile the Java source code
+        // What happens: Maven compiles .java files into .class files
+        // Command: mvn clean compile
+        // ====================================================================
+        stage('2. Build Application') {
+            steps {
+                echo '=========================================='
+                echo 'STAGE 2: Compiling Java source code'
+                echo '=========================================='
+                
+                script {
+                    // Check if we're on Unix (Mac/Linux) or Windows
+                    if (isUnix()) {
+                        echo 'Platform: Mac/Linux detected'
+                        sh 'mvn clean compile -DskipTests'
+                    } else {
+                        echo 'Platform: Windows detected'
+                        bat 'mvn clean compile -DskipTests'
+                    }
+                }
+                
+                echo '✓ Application compiled successfully!'
+                echo '✓ Class files are in target/classes directory'
+            }
+        }
+
+        // ====================================================================
+        // STAGE 3: RUN TESTS
+        // Purpose: Execute all unit tests to verify code quality
+        // What happens: Maven runs JUnit tests
+        // Command: mvn test
+        // ====================================================================
+        stage('3. Run Unit Tests') {
+            steps {
+                echo '=========================================='
+                echo 'STAGE 3: Running unit tests'
+                echo '=========================================='
+                
+                script {
+                    if (isUnix()) {
+                        sh 'mvn test'
+                    } else {
+                        bat 'mvn test'
+                    }
+                }
+                
+                echo '✓ All tests passed successfully!'
+            }
+            
+            // This section runs AFTER the tests complete
+            post {
+                always {
+                    // Publish test results so you can see them in Jenkins UI
+                    echo 'Publishing test results...'
+                    junit '**/target/surefire-reports/*.xml'
+                    
+                    // Publish code coverage report (how much code is tested)
+                    echo 'Publishing code coverage report...'
+                    jacoco(
+                        execPattern: '**/target/jacoco.exec',
+                        classPattern: '**/target/classes',
+                        sourcePattern: '**/src/main/java'
+                    )
+                }
+                success {
+                    echo '✓ All tests passed! Your code is working correctly.'
+                }
+                failure {
+                    echo '✗ Some tests failed! Please check the test reports.'
+                    echo '  You can view detailed results in Jenkins UI.'
+                }
+            }
+        }
+
+        // ====================================================================
+        // STAGE 4: PACKAGE
+        // Purpose: Create a JAR file (executable package)
+        // What happens: Maven packages compiled code into task-manager-api.jar
+        // Command: mvn package
+        // ====================================================================
+        stage('4. Package Application') {
+            steps {
+                echo '=========================================='
+                echo 'STAGE 4: Creating JAR file'
+                echo '=========================================='
+                
+                script {
+                    if (isUnix()) {
+                        sh 'mvn package -DskipTests'
+                    } else {
+                        bat 'mvn package -DskipTests'
+                    }
+                }
+                
+                echo '✓ JAR file created successfully!'
+                echo "✓ Location: ${WORKSPACE}/target/${APP_NAME}-1.0.0.jar"
+            }
+            
+            post {
+                success {
+                    // Archive the JAR file so it's saved in Jenkins
+                    echo 'Archiving the JAR file...'
+                    archiveArtifacts artifacts: '**/target/*.jar', fingerprint: true
+                    echo '✓ JAR file archived and ready for deployment!'
+                }
+            }
+        }
+
+        // ====================================================================
+        // STAGE 5: DEPLOY TO LOCAL MACHINE
+        // Purpose: Copy JAR file and run it on your local machine
+        // What happens: 
+        //   1. Create deployment directory
+        //   2. Stop old application (if running)
+        //   3. Copy new JAR file
+        //   4. Start the application
+        // ====================================================================
+        stage('5. Deploy to Local Machine') {
+            steps {
+                echo '=========================================='
+                echo 'STAGE 5: Deploying to local machine'
+                echo '=========================================='
+                
+                script {
+                    if (isUnix()) {
+                        echo 'Deploying on Mac/Linux...'
+                        
+                        // Create deployment directory
+                        sh "mkdir -p ${DEPLOY_DIR_UNIX}"
+                        
+                        // Copy JAR file to deployment directory
+                        sh "cp ${WORKSPACE}/target/${APP_NAME}-*.jar ${DEPLOY_DIR_UNIX}/${APP_NAME}.jar"
+                        
+                        // Make deployment script executable
+                        sh "chmod +x ${WORKSPACE}/deployment/deploy-local-mac.sh"
+                        
+                        // Run deployment script (stops old app, starts new one)
+                        sh "${WORKSPACE}/deployment/deploy-local-mac.sh"
+                        
+                        echo "✓ Application deployed to ${DEPLOY_DIR_UNIX}"
+                        
+                    } else {
+                        echo 'Deploying on Windows...'
+                        
+                        // Create deployment directory
+                        bat "if not exist ${DEPLOY_DIR_WINDOWS} mkdir ${DEPLOY_DIR_WINDOWS}"
+                        
+                        // Copy JAR file to deployment directory
+                        bat "copy /Y ${WORKSPACE}\\target\\${APP_NAME}-*.jar ${DEPLOY_DIR_WINDOWS}\\${APP_NAME}.jar"
+                        
+                        // Run deployment script (stops old app, starts new one)
+                        bat "${WORKSPACE}\\deployment\\deploy-local-windows.bat"
+                        
+                        echo "✓ Application deployed to ${DEPLOY_DIR_WINDOWS}"
+                    }
+                }
+                
+                echo '✓ Deployment completed!'
+                echo '✓ Application should be running on http://localhost:8080'
+            }
+        }
+
+        // ====================================================================
+        // STAGE 6: VERIFY DEPLOYMENT
+        // Purpose: Check if the application is running correctly
+        // What happens: Call the health check endpoint
+        // ====================================================================
+        stage('6. Verify Deployment') {
+            steps {
+                echo '=========================================='
+                echo 'STAGE 6: Verifying deployment'
+                echo '=========================================='
+                
+                // Wait a few seconds for application to start
+                sleep 10
+                
+                script {
+                    if (isUnix()) {
+                        echo 'Checking application health on Mac/Linux...'
+                        sh 'curl -f http://localhost:8080/actuator/health || echo "Health check failed!"'
+                    } else {
+                        echo 'Checking application health on Windows...'
+                        bat 'curl -f http://localhost:8080/actuator/health || echo "Health check failed!"'
+                    }
+                }
+                
+                echo '✓ Application is running and healthy!'
+                echo ''
+                echo '=========================================='
+                echo 'DEPLOYMENT SUCCESSFUL!'
+                echo '=========================================='
+                echo 'You can now test the API:'
+                echo '  • Health: http://localhost:8080/actuator/health'
+                echo '  • All Tasks: http://localhost:8080/api/tasks'
+                echo '  • API Docs: See API_EXAMPLES.md'
+                echo '=========================================='
+            }
+        }
+    }
+
+    // ========================================================================
+    // POST-BUILD ACTIONS
+    // These actions run after all stages complete
+    // ========================================================================
+    post {
+        always {
+            echo ''
+            echo '=========================================='
+            echo 'Pipeline Execution Completed'
+            echo '=========================================='
+            echo "Build Number: ${env.BUILD_NUMBER}"
+            echo "Build Status: ${currentBuild.currentResult}"
+            echo '=========================================='
+        }
+        
+        success {
+            echo '✓✓✓ SUCCESS! ✓✓✓'
+            echo 'The CI/CD pipeline completed successfully!'
+            echo 'Your application is now running on http://localhost:8080'
+            echo ''
+            echo 'Next Steps:'
+            echo '1. Test the API endpoints (see API_EXAMPLES.md)'
+            echo '2. Check the application logs'
+            echo '3. Try making a code change and re-run the pipeline'
+        }
+        
+        failure {
+            echo '✗✗✗ FAILURE! ✗✗✗'
+            echo 'The pipeline failed. Please check the console output above.'
+            echo ''
+            echo 'Common issues:'
+            echo '1. Tests failed - Check test reports in Jenkins UI'
+            echo '2. Build failed - Check for compilation errors'
+            echo '3. Deployment failed - Check if port 8080 is available'
+            echo ''
+            echo 'Look for red ✗ marks in the console output to find the problem.'
+        }
+        
+        unstable {
+            echo '⚠ WARNING! ⚠'
+            echo 'The pipeline completed but some tests may have failed.'
+            echo 'Check the test reports for details.'
+        }
+    }
+}
+
+// ============================================================================
+// END OF PIPELINE
+// ============================================================================
+//
+// UNDERSTANDING THIS PIPELINE:
+//
+// 1. CHECKOUT: Gets your code from Git
+//    - Like downloading a ZIP file from GitHub
+//
+// 2. BUILD: Compiles your Java code
+//    - Turns .java files into .class files
+//    - Downloads any libraries (dependencies)
+//
+// 3. TEST: Runs your unit tests
+//    - Ensures your code works correctly
+//    - If tests fail, pipeline stops here
+//
+// 4. PACKAGE: Creates a JAR file
+//    - Bundles everything into one file
+//    - This is what you'll deploy
+//
+// 5. DEPLOY: Runs the application locally
+//    - Copies JAR to a known location
+//    - Stops old version (if running)
+//    - Starts new version
+//
+// 6. VERIFY: Checks if app is working
+//    - Calls the health check endpoint
+//    - Confirms deployment success
+//
+// JENKINS WORKSPACE:
+// - Mac: /Users/<username>/.jenkins/workspace/<job-name>/
+// - Windows: C:\Users\<username>\.jenkins\workspace\<job-name>\
+//
+// After this pipeline runs, your app will be available at:
+// http://localhost:8080
+//
+// ============================================================================
