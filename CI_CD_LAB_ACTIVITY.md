@@ -268,7 +268,7 @@ mkdir -p ~/projects
 cd ~/projects
 
 # Clone the repository
-git clone https://github.com/YOUR-ORG/ci-cd-demo.git
+git clone https://github.com/asamaranayake/ci-cd-demo.git
 
 # Navigate to project
 cd ci-cd-demo
@@ -285,7 +285,7 @@ mkdir C:\projects
 cd C:\projects
 
 REM Clone the repository
-git clone https://github.com/YOUR-ORG/ci-cd-demo.git
+git clone https://github.com/asamaranayake/ci-cd-demo.git
 
 REM Navigate to project
 cd ci-cd-demo

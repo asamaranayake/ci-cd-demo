@@ -86,7 +86,7 @@ See the [Local Run Guide](LOCAL_RUN_GUIDE.md) for detailed instructions, or:
 
 ```bash
 # Clone the repository
-git clone <YOUR-REPO-URL>
+git clone https://github.com/asamaranayake/ci-cd-demo.git
 cd ci-cd-demo
 
 # Build and run
