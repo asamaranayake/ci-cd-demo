@@ -26,8 +26,8 @@ pipeline {
     // These must be configured in Jenkins Global Tool Configuration
     // ========================================================================
     tools {
-        maven 'Maven 3.9.0'  // Name must match Jenkins configuration
-        jdk 'JDK 17'         // Name must match Jenkins configuration
+        maven 'Maven 3.9.12'  // Name must match Jenkins configuration
+        jdk 'JDK 21'         // Name must match Jenkins configuration
     }
 
     // ========================================================================
