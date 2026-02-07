@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Docker Compose Todo App</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            max-width: 500px;
+            width: 100%;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+        }
+        h1 { 
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .status {
+            padding: 10px 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+        .status.connected {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .status.disconnected {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        input {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        button {
+            padding: 12px 25px;
+            background-color: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #5568d3;
+        }
+        ul {
+            list-style: none;
+            margin-top: 20px;
+        }
+        li {
+            padding: 12px;
+            background-color: #f8f9fa;
+            border-left: 4px solid #667eea;
+            margin-bottom: 10px;
+            border-radius: 3px;
+        }
+        .empty {
+            color: #666;
+            font-style: italic;
+            text-align: center;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🐳 Docker Compose Todo App</h1>
+        <div id="status" class="status disconnected">Connecting to backend...</div>
+        
+        <div class="input-group">
+            <input type="text" id="newTodo" placeholder="Add a new todo...">
+            <button onclick="addTodo()">Add</button>
+        </div>
+        
+        <ul id="todoList">
+            <li class="empty">No todos yet. Add one to get started!</li>
+        </ul>
+    </div>
+
+    <script>
+        const API_URL = 'http://backend:3000/api';
+
+        async function loadTodos() {
+            try {
+                const response = await fetch(API_URL + '/todos');
+                const todos = await response.json();
+                displayTodos(todos);
+                document.getElementById('status').className = 'status connected';
+                document.getElementById('status').textContent = '✅ Connected to backend';
+            } catch(e) {
+                document.getElementById('status').className = 'status disconnected';
+                document.getElementById('status').textContent = '❌ Backend unavailable';
+                console.error('Error:', e);
+            }
+        }
+
+        function displayTodos(todos) {
+            const list = document.getElementById('todoList');
+            if (todos.length === 0) {
+                list.innerHTML = '<li class="empty">No todos yet. Add one to get started!</li>';
+                return;
+            }
+            list.innerHTML = '';
+            todos.forEach(todo => {
+                const li = document.createElement('li');
+                li.textContent = `${todo.title} ${todo.completed ? '✓' : ''}`;
+                list.appendChild(li);
+            });
+        }
+
+        async function addTodo() {
+            const title = document.getElementById('newTodo').value;
+            if (!title.trim()) {
+                alert('Please enter a todo');
+                return;
+            }
+
+            try {
+                const response = await fetch(API_URL + '/todos', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title })
+                });
+                const todo = await response.json();
+                document.getElementById('newTodo').value = '';
+                loadTodos();
+            } catch(e) {
+                alert('Error adding todo: ' + e.message);
+            }
+        }
+
+        // Load todos when page loads
+        loadTodos();
+        
+        // Refresh every 5 seconds
+        setInterval(loadTodos, 5000);
+    </script>
+</body>
+</html>

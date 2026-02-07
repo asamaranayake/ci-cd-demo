@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  frontend:
+    image: nginx:alpine
+    container_name: todo-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+    depends_on:
+      - backend
+    networks:
+      - todo-network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: todo-backend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+    depends_on:
+      - database
+    networks:
+      - todo-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  database:
+    image: postgres:14-alpine
+    container_name: todo-database
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: todos
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: secure123
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - todo-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+
+networks:
+  todo-network:
+    driver: bridge
