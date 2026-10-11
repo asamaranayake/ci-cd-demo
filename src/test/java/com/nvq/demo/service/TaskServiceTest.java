@@ -22,6 +22,7 @@ class TaskServiceTest {
     void testGetAllTasks_ShouldReturnAllTasks() {
         List<Task> tasks = taskService.getAllTasks();
         assertNotNull(tasks);
+        System.out.println("NewCommitChange");
         assertEquals(2, tasks.size()); // Two sample tasks in constructor
     }
 
