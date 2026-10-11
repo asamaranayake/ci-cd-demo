@@ -8,6 +8,6 @@ class TaskManagerApplicationTests {
 
     @Test
     void contextLoads() {
-        // This test verifies that the application context loads successfully
+        System.out.println("Test case executed successfully");
     }
 }
