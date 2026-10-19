@@ -15,7 +15,7 @@ Before running the application, ensure you have:
 
 | Tool | Minimum Version | Check Command |
 |------|-----------------|---------------|
-| Java | 17 or higher | `java -version` |
+| Java | 25 or higher | `java -version` |
 | Maven | 3.6 or higher | `mvn -version` |
 | Git | Any recent version | `git --version` |
 
@@ -363,8 +363,8 @@ taskkill /PID <PID> /F
 1. Verify Java is installed: Download from https://adoptium.net/
 2. Add Java to PATH similar to Maven above
 3. Set JAVA_HOME environment variable:
-   - **Mac/Linux:** `export JAVA_HOME=/path/to/jdk-17`
-   - **Windows:** Add system variable `JAVA_HOME=C:\path\to\jdk-17`
+   - **Mac/Linux:** `export JAVA_HOME=/path/to/jdk-25`
+   - **Windows:** Add system variable `JAVA_HOME=C:\path\to\jdk-25`
 
 ### Problem: Port 8080 already in use
 

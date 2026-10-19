@@ -103,7 +103,7 @@ The application will start on `http://localhost:8080`
 
 | Tool | Version | Required For | Installation Guide |
 |------|---------|--------------|-------------------|
-| Java JDK | 17+ | Running application | [Lab Activity - Session 1](CI_CD_LAB_ACTIVITY.md#step-11-install-java-jdk-17-15-minutes) |
+| Java JDK | 25+ | Running application | [Lab Activity - Session 1](CI_CD_LAB_ACTIVITY.md#step-11-install-java-jdk-25-15-minutes) |
 | Maven | 3.6+ | Building project | [Lab Activity - Session 1](CI_CD_LAB_ACTIVITY.md#step-12-install-maven-10-minutes) |
 | Git | Any | Version control | [Lab Activity - Session 1](CI_CD_LAB_ACTIVITY.md#step-13-install-git-5-minutes) |
 | Jenkins | Latest LTS | CI/CD automation | [Lab Activity - Session 2](CI_CD_LAB_ACTIVITY.md#session-2-jenkins-installation--configuration) |
@@ -443,9 +443,9 @@ In Jenkins, go to **Manage Jenkins** → **Manage Plugins** → **Available**:
 - Version: 3.9.0
 
 #### Configure JDK
-- Name: `JDK 17`
+- Name: `JDK 25`
 - Install automatically
-- Version: Java 17
+- Version: Java 25
 
 ### 4. Create Pipeline Job
 

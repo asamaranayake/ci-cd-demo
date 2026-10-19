@@ -69,7 +69,7 @@ Think of a car assembly line:
 ### This Lab Project
 
 **Application:** Task Manager REST API  
-**Technology:** Java 17 + Spring Boot + Maven  
+**Technology:** Java 25 + Spring Boot + Maven
 **CI/CD Tool:** Jenkins  
 **Deployment:** Local machine (no cloud/Docker for beginners)
 
@@ -84,7 +84,7 @@ Think of a car assembly line:
 
 | Tool | Version | Purpose |
 |------|---------|---------|
-| Java JDK | 17 or higher | Run Java applications |
+| Java JDK | 25 or higher | Run Java applications |
 | Maven | 3.6 or higher | Build Java projects |
 | Git | Any recent | Version control |
 | Jenkins | Latest LTS | CI/CD automation |
@@ -92,7 +92,7 @@ Think of a car assembly line:
 
 ---
 
-### Step 1.1: Install Java JDK 17 (15 minutes)
+### Step 1.1: Install Java JDK 25 (15 minutes)
 
 #### For Mac Users
 
@@ -102,21 +102,21 @@ Think of a car assembly line:
 # Install Homebrew if you don't have it
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
-# Install OpenJDK 17
-brew install openjdk@17
+# Install OpenJDK 25
+brew install openjdk@25
 
 # Link it so your system can find it
-sudo ln -sfn /opt/homebrew/opt/openjdk@17/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk-17.jdk
+sudo ln -sfn /opt/homebrew/opt/openjdk@25/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk-25.jdk
 
 # Add to your PATH (add to ~/.zshrc or ~/.bash_profile)
-echo 'export PATH="/opt/homebrew/opt/openjdk@17/bin:$PATH"' >> ~/.zshrc
+echo 'export PATH="/opt/homebrew/opt/openjdk@25/bin:$PATH"' >> ~/.zshrc
 source ~/.zshrc
 ```
 
 **Option 2: Manual Download**
 
 1. Visit: https://adoptium.net/
-2. Download: macOS, JDK 17 (LTS), .pkg file
+2. Download: macOS, JDK 25 (LTS), .pkg file
 3. Run the installer
 4. Follow the installation wizard
 
@@ -127,7 +127,7 @@ source ~/.zshrc
 1. Visit: https://adoptium.net/
 2. Select:
    - **Operating System:** Windows
-   - **Version:** 17 (LTS)
+   - **Version:** 25 (LTS)
    - **JVM:** HotSpot
    - **Architecture:** x64
 3. Download the `.msi` installer
@@ -143,20 +143,20 @@ source ~/.zshrc
 java -version
 
 # Expected output (version may vary slightly):
-# openjdk version "17.0.x" 2024-xx-xx
-# OpenJDK Runtime Environment Temurin-17.0.x
-# OpenJDK 64-Bit Server VM Temurin-17.0.x
+# openjdk version "25.0.x" 2025-xx-xx
+# OpenJDK Runtime Environment Temurin-25.0.x
+# OpenJDK 64-Bit Server VM Temurin-25.0.x
 
 # Check Java compiler
 javac -version
 
 # Expected output:
-# javac 17.0.x
+# javac 25.0.x
 ```
 
 **✅ Success Criteria:**
-- `java -version` shows version 17 or higher
-- `javac -version` shows version 17 or higher
+- `java -version` shows version 25 or higher
+- `javac -version` shows version 25 or higher
 
 **❌ Troubleshooting:**
 
@@ -168,11 +168,11 @@ If commands not found:
 /usr/libexec/java_home -V
 
 # Set JAVA_HOME
-export JAVA_HOME=$(/usr/libexec/java_home -v 17)
+export JAVA_HOME=$(/usr/libexec/java_home -v 25)
 export PATH=$JAVA_HOME/bin:$PATH
 
 # Add to ~/.zshrc to make permanent
-echo 'export JAVA_HOME=$(/usr/libexec/java_home -v 17)' >> ~/.zshrc
+echo 'export JAVA_HOME=$(/usr/libexec/java_home -v 25)' >> ~/.zshrc
 echo 'export PATH=$JAVA_HOME/bin:$PATH' >> ~/.zshrc
 ```
 
@@ -181,7 +181,7 @@ echo 'export PATH=$JAVA_HOME/bin:$PATH' >> ~/.zshrc
 2. Click "Environment Variables" button
 3. Under "System Variables", click "New"
 4. Variable name: `JAVA_HOME`
-5. Variable value: `C:\Program Files\Eclipse Adoptium\jdk-17.0.x-hotspot`
+5. Variable value: `C:\Program Files\Eclipse Adoptium\jdk-25.0.x-hotspot`
 6. Edit "Path" variable, add: `%JAVA_HOME%\bin`
 7. Click OK, open NEW command prompt and try again
 
@@ -220,12 +220,12 @@ mvn -version
 # Expected output:
 # Apache Maven 3.9.x
 # Maven home: /path/to/maven
-# Java version: 17.0.x
+# Java version: 25.0.x
 ```
 
 **✅ Success Criteria:**
 - `mvn -version` shows Maven 3.6 or higher
-- Shows Java version 17
+- Shows Java version 25
 
 ---
 
@@ -460,7 +460,7 @@ Invoke-RestMethod http://localhost:8080/api/tasks
 
 **Complete this checklist:**
 
-- [ ] Java 17 installed - `java -version` works
+- [ ] Java 25 installed - `java -version` works
 - [ ] Maven installed - `mvn -version` works
 - [ ] Git installed - `git --version` works
 - [ ] Project cloned - `ci-cd-demo/` directory exists
@@ -521,7 +521,7 @@ brew services start jenkins-lts
 3. Run the installer
 4. Installation Options:
    - **Service Port:** 8080 (default)
-   - **Java Home:** Should auto-detect your JDK 17
+   - **Java Home:** Should auto-detect your JDK 25
    - **Logon Type:** Run as "Local System"
 5. Click "Install"
 6. Jenkins will start automatically
@@ -712,21 +712,21 @@ Click **"Apply"** (don't close yet!)
 **[SCREENSHOT PLACEHOLDER: JDK Configuration Form]**
 
 Fill in:
-- **Name:** `JDK 17` (MUST match what's in Jenkinsfile!)
+- **Name:** `JDK 25` (MUST match what's in Jenkinsfile!)
 - **JAVA_HOME:** Path to your JDK installation
 
 **Find JAVA_HOME:**
 
 **Mac:**
 ```bash
-/usr/libexec/java_home -v 17
+/usr/libexec/java_home -v 25
 # Copy the output path
 ```
 
 **Windows:**
 ```cmd
 echo %JAVA_HOME%
-# Or typically: C:\Program Files\Eclipse Adoptium\jdk-17.0.x-hotspot
+# Or typically: C:\Program Files\Eclipse Adoptium\jdk-25.0.x-hotspot
 ```
 
 - **Install automatically:** ✗ Uncheck (we already installed it)
@@ -735,7 +735,7 @@ Click **"Save"**
 
 **✅ Success Criteria:**
 - Maven configured with name "Maven 3.9.0"
-- JDK configured with name "JDK 17"
+- JDK configured with name "JDK 25"
 - No error messages
 
 **❌ Common Mistakes:**
@@ -808,7 +808,7 @@ Right now it's empty. After we create a job, you'll see a folder for it!
 - [ ] Can log in with admin credentials
 - [ ] Plugins installed: Maven Integration, JUnit, JaCoCo
 - [ ] Maven configured as "Maven 3.9.0"
-- [ ] JDK configured as "JDK 17"
+- [ ] JDK configured as "JDK 25"
 - [ ] Know where Jenkins workspace is located
 
 **✓ If all boxes checked:** You're ready for Session 3!  
@@ -933,7 +933,7 @@ pipeline {
     
     tools {
         maven 'Maven 3.9.0'  ← Tools needed
-        jdk 'JDK 17'
+        jdk 'JDK 25'
     }
     
     stages {  ← The actual work
